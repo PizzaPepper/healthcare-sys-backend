@@ -1,5 +1,5 @@
-import{Schema,Document,model} from 'mongoose';
-import { IUser } from './User';
+import { Schema, Document, model } from "mongoose";
+import { IUser } from "./User";
 
 /**
  * Expedient model
@@ -19,20 +19,24 @@ export interface IExpedient extends Document {
 const ExpedientSchema = new Schema({
   patient: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
     autopopulate: true,
   },
-  records: [{
-    record: String,
-    date: Schema.Types.Date,
-  }],
-  files :[{
-    name: String,
-    extension: String,
-    url: String,
-  }]
-},);
+  records: [
+    {
+      record: String,
+      date: Schema.Types.Date,
+    },
+  ],
+  files: [
+    {
+      name: String,
+      extension: String,
+      url: String,
+      public_id: String,
+    },
+  ],
+});
 
-
-export default model<IExpedient>('Expedient', ExpedientSchema);
+export default model<IExpedient>("Expedient", ExpedientSchema);

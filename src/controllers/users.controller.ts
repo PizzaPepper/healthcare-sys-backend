@@ -49,12 +49,12 @@ export const getUser = async (req: Request | any, res: Response) => {
  * API endpoint to get all patients
  * @param req - The request object
  * @param res - The response object
- * @returns - The promise send to the client 
+ * @returns - The promise send to the client
  */
 export const getPatients = async (req: Request | any, res: Response) => {
   // * Check if the patients exists
-  const patients = await User.find({role:'patient'});
+  const patients = await User.find({ role: "patient" });
   if (!patients) return res.status(404).json("patient doesn't exist!");
 
   return res.status(200).json(patients);
-}
+};

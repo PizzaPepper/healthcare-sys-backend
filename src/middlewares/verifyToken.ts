@@ -20,8 +20,8 @@ export const verifyToken = (
     const token = req.headers.authorization;
     const payload: any = jwt.verify(token, SECRET_TOKEN);
     req.userId = payload._id;
-  } catch (error:any) {
-    if (error.name === "JsonWebTokenError" ) {
+  } catch (error: any) {
+    if (error.name === "JsonWebTokenError") {
       return res.status(401).json("Unthiorize Token");
     } else if (error.name === "TokenExpiredError") {
       return res.status(401).json("Expired Token");
@@ -32,4 +32,3 @@ export const verifyToken = (
 
   next();
 };
-

@@ -63,7 +63,7 @@ exports.getUser = getUser;
  */
 const getPatients = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // * Check if the patients exists
-    const patients = yield User_1.default.find({ role: 'patient' });
+    const patients = yield User_1.default.find({ role: "patient" });
     if (!patients)
         return res.status(404).json("patient doesn't exist!");
     return res.status(200).json(patients);

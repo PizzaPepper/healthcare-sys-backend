@@ -1,16 +1,16 @@
-import {Document,Schema,model} from "mongoose";
+import { Document, Schema, model } from "mongoose";
 
 /**
  * User model
  */
 export interface IUser extends Document {
-  name:string;
-  fsurname:string;
-  lsurname:string;
-  age:number; 
+  name: string;
+  fsurname: string;
+  lsurname: string;
+  age: number;
   username: string;
   password: string;
-  expedient:string;
+  expedient: string;
   role: string;
 }
 
@@ -30,17 +30,17 @@ const UserSchema = new Schema({
     required: true,
     trim: true,
   },
-  fsurname:{
+  fsurname: {
     type: String,
     required: true,
     trim: true,
   },
-  lsurname:{
+  lsurname: {
     type: String,
     required: true,
     trim: true,
   },
-  age:{
+  age: {
     type: Number,
     required: true,
   },
@@ -48,7 +48,7 @@ const UserSchema = new Schema({
     type: String,
     required: true,
     trim: true,
-    unique:true,
+    unique: true,
   },
   password: {
     type: String,

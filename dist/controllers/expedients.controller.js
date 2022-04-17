@@ -12,9 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getExp = void 0;
+exports.uploadFile = exports.getExp = void 0;
 const Expedient_1 = __importDefault(require("../models/Expedient"));
 const User_1 = __importDefault(require("../models/User"));
+const cloudinary_1 = require("../libs/cloudinary");
+const fs_extra_1 = __importDefault(require("fs-extra"));
 /**
  * API endpoint to get a expedient from a patient
  * @param req - The request object
@@ -44,4 +46,31 @@ const getExp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     return res.status(200).json(exp);
 });
 exports.getExp = getExp;
+/**
+ * API endpoint to upload a file to an expedient
+ * @param req - The request object
+ * @param res - The response object
+ * @returns - The promise send to the client
+ */
+const uploadFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const idExp = req.params.id;
+    // * Check if the header 'fileuploading' is present
+    if (!((_a = req.files) === null || _a === void 0 ? void 0 : _a.fileuploading))
+        return res.status(404).json("File doesn't exist!");
+    // * Upload the file to cloudinary
+    const result = yield (0, cloudinary_1.upload)(req.files.fileuploading.tempFilePath);
+    fs_extra_1.default.remove(req.files.fileuploading.tempFilePath);
+    // * Fill the file object
+    const newFile = {
+        name: req.files.fileuploading.name,
+        extension: result.format,
+        url: result.url,
+        public_id: result.public_id,
+    };
+    // * Check if the expedient exists
+    const resUpdate = yield Expedient_1.default.updateOne({ expedient: idExp }, { $push: { files: newFile } });
+    return res.status(201).json(resUpdate);
+});
+exports.uploadFile = uploadFile;
 //# sourceMappingURL=expedients.controller.js.map

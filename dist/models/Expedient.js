@@ -10,19 +10,24 @@ const mongoose_1 = require("mongoose");
 const ExpedientSchema = new mongoose_1.Schema({
     patient: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
         required: true,
         autopopulate: true,
     },
-    records: [{
+    records: [
+        {
             record: String,
             date: mongoose_1.Schema.Types.Date,
-        }],
-    files: [{
+        },
+    ],
+    files: [
+        {
             name: String,
             extension: String,
             url: String,
-        }]
+            public_id: String,
+        },
+    ],
 });
-exports.default = (0, mongoose_1.model)('Expedient', ExpedientSchema);
+exports.default = (0, mongoose_1.model)("Expedient", ExpedientSchema);
 //# sourceMappingURL=Expedient.js.map

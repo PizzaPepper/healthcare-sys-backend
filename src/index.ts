@@ -5,5 +5,5 @@ import { PORT } from "./config";
 connectDB();
 
 app.listen(PORT, () => {
-  console.log("Server it's work on" , PORT);
+  console.log("Server it's work on", PORT);
 });
