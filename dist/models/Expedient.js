@@ -12,7 +12,6 @@ const ExpedientSchema = new mongoose_1.Schema({
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "User",
         required: true,
-        autopopulate: true,
     },
     records: [
         {
@@ -28,6 +27,11 @@ const ExpedientSchema = new mongoose_1.Schema({
             public_id: String,
         },
     ],
+    requestAccess: {
+        type: String,
+        enum: ["pending", "accepted", "default"],
+        default: "default",
+    }
 });
 exports.default = (0, mongoose_1.model)("Expedient", ExpedientSchema);
 //# sourceMappingURL=Expedient.js.map

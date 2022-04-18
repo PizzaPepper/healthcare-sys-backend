@@ -9,6 +9,7 @@ const mongoose_1 = require("mongoose");
  * @param age - type: number, required: true
  * @param username - type: string, required: true, trim: true, unique: true
  * @param password - type: string, required: true, trim: true
+ * @param expedient - type: string, required: true, trim: true
  * @param role - type: string, required: true, trim: true
  **/
 const UserSchema = new mongoose_1.Schema({

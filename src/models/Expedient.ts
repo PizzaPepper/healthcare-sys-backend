@@ -8,6 +8,7 @@ export interface IExpedient extends Document {
   patient: IUser;
   records: Array<object>;
   files: Array<object>;
+  requestAccess: string;
 }
 
 /**
@@ -21,7 +22,7 @@ const ExpedientSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
-    autopopulate: true,
+    
   },
   records: [
     {
@@ -37,6 +38,11 @@ const ExpedientSchema = new Schema({
       public_id: String,
     },
   ],
+  requestAccess: {
+    type: String,
+    enum: ["pending", "accepted", "default"],
+    default: "default",
+  }
 });
 
 export default model<IExpedient>("Expedient", ExpedientSchema);

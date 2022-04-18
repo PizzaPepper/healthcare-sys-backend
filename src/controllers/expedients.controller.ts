@@ -4,6 +4,7 @@ import User, { IUser } from "../models/User";
 import { upload } from "../libs/cloudinary";
 import { UploadApiResponse } from "cloudinary";
 import fs from "fs-extra";
+
 /**
  * API endpoint to get a expedient from a patient
  * @param req - The request object
@@ -14,7 +15,6 @@ export const getExp = async (req: Request | any, res: Response) => {
   const id: string = req.userId;
   const idExp: string = req.params.id;
 
-  // ? Middleware here?
   // * Check if the user exists
   const user: IUser | null = await User.findById(id);
   if (!user) return res.status(404).json("user doesn't exist!");
@@ -23,14 +23,37 @@ export const getExp = async (req: Request | any, res: Response) => {
   if (user.role == "patient" && user.expedient != idExp)
     return res.status(401).json("Unauthorized Expedient");
 
-  // * Check if the expedient exists
-  const exp: IExpedient | null = await Expedient.findOne({
-    expedient: idExp,
-  }).populate({
-    path: "patient",
-    select: "-_id -username -password",
-  });
+  // * Check if the expedient exists with the expedient id
+  // TODO: Improve this query
+  let exp: IExpedient | Array<IExpedient> = await Expedient.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "patient",
+        foreignField: "_id",
+        as: "patient",
+      },
+    },
+    {
+      $match: {
+        "patient.expedient": idExp,
+      },
+    },
+    { $limit: 1 },
+    {
+      $project: {
+        id: 1,
+        patient: {
+          $first: "$patient",
+        },
+        records: 1,
+        files: 1,
+        requestAccess: 1,
+      },
+    },
+  ]);
 
+  exp = exp[0];
   if (!exp) return res.status(404).json("Expedient doesn't exist!");
 
   return res.status(200).json(exp);
@@ -65,10 +88,92 @@ export const uploadFile = async (req: Request | any, res: Response) => {
   };
 
   // * Check if the expedient exists
-  const resUpdate = await Expedient.updateOne(
+  await Expedient.updateOne(
     { expedient: idExp },
-    { $push: { files: newFile } }
+    { $push: { files: newFile } },
+    { new: true }
   );
+  return res.status(201).json(newFile);
+};
 
-  return res.status(201).json(resUpdate);
+/**
+ * API endpoint to get current status access of an expedient
+ * @param req - The request object
+ * @param res - The response object
+ * @returns - The promise send to the client
+ */
+export const getStatusRequest = async (req: Request | any, res: Response) => {
+  const idExp: string = req.params.id;
+
+  // * Check if the expedient exists
+  const exp: IExpedient | null = await Expedient.findOne({ expedient: idExp });
+  if (!exp) return res.status(404).json("Expedient doesn't exist!");
+
+  return res.status(200).json(exp.requestAccess);
+};
+
+/**
+ * API endpoint to change the status access of an expedient
+ * @param req - The request object
+ * @param res - The response object
+ * @returns - The promise send to the client
+ */
+export const setStatusRequest = async (req: Request | any, res: Response) => {
+  const id: string = req.userId;
+  const idExp: string = req.params.id;
+
+  // * Check if the user exists (sesion)
+  const user: IUser | null = await User.findById(id);
+  if (!user) return res.status(404).json("user doesn't exist!");
+
+  // * Check if the expedient exists
+  const exp: IExpedient | null = await Expedient.findOne({ expedient: idExp });
+  if (!exp) return res.status(404).json("Expedient doesn't exist!");
+
+  // * Check if the user is the patient
+  if (user.role === "patient") {
+    if (exp.requestAccess === "accepted")
+      return res.status(400).json("Status already accepted");
+    if (exp.requestAccess === "default")
+      return res.status(400).json("Status already default");
+
+    if (exp.requestAccess === "pending") {
+      // * Update the expedient to accepted if status is pending
+      await Expedient.updateOne(
+        { expedient: idExp },
+        { $set: { requestAccess: "accepted" } },
+        { new: true }
+      );
+      return res.status(200).json("Status accepted");
+    } else {
+      return res.status(400).json("Status not allowed");
+    }
+  }
+
+  // * Check if the user is the doctor
+  if (user.role === "doctor") {
+    if (exp.requestAccess === "pending")
+      return res.status(400).json("Status already pending");
+
+    if (exp.requestAccess === "default") {
+      // * Update the expedient to pending if status is default
+      await Expedient.updateOne(
+        { expedient: idExp },
+        { $set: { requestAccess: "pending" } },
+        { new: true }
+      );
+      return res.status(200).json("Status pending");
+    }
+    if (exp.requestAccess === "accepted") {
+      // * Update the expedient to default if status is accepted
+      await Expedient.updateOne(
+        { expedient: idExp },
+        { $set: { requestAccess: "default" } },
+        { new: true }
+      );
+      return res.status(200).json("Status default");
+    }
+  }
+
+  return res.status(400).json("Status not allowed");
 };

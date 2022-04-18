@@ -22,6 +22,7 @@ export interface IUser extends Document {
  * @param age - type: number, required: true
  * @param username - type: string, required: true, trim: true, unique: true
  * @param password - type: string, required: true, trim: true
+ * @param expedient - type: string, required: true, trim: true
  * @param role - type: string, required: true, trim: true
  **/
 const UserSchema = new Schema({
