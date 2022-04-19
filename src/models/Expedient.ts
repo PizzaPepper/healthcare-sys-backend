@@ -1,6 +1,6 @@
-import { Schema, Document, model } from "mongoose";
+import { Schema, Document, model} from "mongoose";
 import { IUser } from "./User";
-
+import mongooseAutoPopulate from "mongoose-autopopulate";
 /**
  * Expedient model
  */
@@ -14,7 +14,7 @@ export interface IExpedient extends Document {
 /**
  * Expedient schema
  * @param patient - type: IUser, required: true
- * @param records - type: Array<object>, required: true
+ * @param records - type: Array<object>, required: true.plugin(mongooseDeepPopulate);
  * @param files - type: Array<object>, required: true
  */
 const ExpedientSchema = new Schema({
@@ -22,7 +22,7 @@ const ExpedientSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
-    
+    autopopulate: true,
   },
   records: [
     {
@@ -43,6 +43,7 @@ const ExpedientSchema = new Schema({
     enum: ["pending", "accepted", "default"],
     default: "default",
   }
-});
+}).plugin(mongooseAutoPopulate)
+
 
 export default model<IExpedient>("Expedient", ExpedientSchema);

@@ -7,6 +7,7 @@ import fs from "fs-extra";
 import StateAccessStrategy from "../logic/strategyAccess/StateAccessStrategy";
 import StrategyPatient from "../logic/strategyAccess/StrategyPatient";
 import StrategyDoctor from "../logic/strategyAccess/StrategyDoctor";
+import { Aggregate } from "mongoose";
 
 
 
@@ -30,33 +31,7 @@ export const getExp = async (req: Request | any, res: Response) => {
 
   // * Check if the expedient exists with the expedient id
   // TODO: Improve this query
-  let exp: IExpedient | Array<IExpedient> = await Expedient.aggregate([
-    {
-      $lookup: {
-        from: "users",
-        localField: "patient",
-        foreignField: "_id",
-        as: "patient",
-      },
-    },
-    {
-      $match: {
-        "patient.expedient": idExp,
-      },
-    },
-    { $limit: 1 },
-    {
-      $project: {
-        id: 1,
-        patient: {
-          $first: "$patient",
-        },
-        records: 1,
-        files: 1,
-        requestAccess: 1,
-      },
-    },
-  ]);
+  let exp: IExpedient | Array<IExpedient> = await findOneExpedient(idExp);
 
   exp = exp[0];
   if (!exp) return res.status(404).json("Expedient doesn't exist!");
@@ -111,7 +86,8 @@ export const getStatusRequest = async (req: Request | any, res: Response) => {
   const idExp: string = req.params.id;
 
   // * Check if the expedient exists
-  const exp: IExpedient | null = await Expedient.findOne({ expedient: idExp });
+  let exp: IExpedient | Array<IExpedient> = await findOneExpedient(idExp);
+  exp=exp[0];
   if (!exp) return res.status(404).json("Expedient doesn't exist!");
 
   return res.status(200).json(exp.requestAccess);
@@ -133,7 +109,8 @@ export const setStatusRequest = async (req: Request | any, res: Response) => {
   if (!user) return res.status(404).json("User doesn't exist!");
 
   // * Check if the expedient exists
-  const exp: IExpedient | null = await Expedient.findOne({ expedient: idExp });
+  let exp: IExpedient | Array<IExpedient> = await findOneExpedient(idExp);
+  exp=exp[0];
   if (!exp) return res.status(404).json("Expedient doesn't exist!");
 
   const stateAccessStrategy: StateAccessStrategy= new StateAccessStrategy();
@@ -152,3 +129,49 @@ export const setStatusRequest = async (req: Request | any, res: Response) => {
 
   return await stateAccessStrategy.HandlerStrategy(req, res);
 };
+
+
+
+export const getExpTest = async (req: Request | any, res: Response) => {
+  const idExp: string = req.params.id;
+
+  let foo:any = await findOneExpedient(idExp);
+  foo = foo[0];
+  return res.status(200).json(foo);
+
+}
+
+// TODO: Improve this query
+const findOneExpedient = (idExp:string):Aggregate<IExpedient[]> => {
+  return Expedient.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "patient",
+        foreignField: "_id",
+        as: "patient",
+      },
+    },
+    {
+      $match: {
+        "patient.expedient": idExp,
+      },
+    },
+    { $limit: 1 },
+    {
+      $project: {
+        id: 1,
+        patient: {
+          $first: "$patient",
+        },
+        records: 1,
+        files: 1,
+        requestAccess: 1,
+      },
+    },
+  ]);
+}
+
+
+
+
