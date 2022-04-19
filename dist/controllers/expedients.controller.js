@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getExpTest = exports.setStatusRequest = exports.getStatusRequest = exports.uploadFile = exports.getExp = void 0;
+exports.getExpTest = exports.setStatusDefault = exports.setStatusRequest = exports.getStatusRequest = exports.uploadFile = exports.getExp = void 0;
 const Expedient_1 = __importDefault(require("../models/Expedient"));
 const User_1 = __importDefault(require("../models/User"));
 const cloudinary_1 = require("../libs/cloudinary");
@@ -121,6 +121,22 @@ const setStatusRequest = (req, res) => __awaiter(void 0, void 0, void 0, functio
     return yield stateAccessStrategy.HandlerStrategy(req, res);
 });
 exports.setStatusRequest = setStatusRequest;
+const setStatusDefault = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.userId;
+    const idExp = req.params.id;
+    // * Check if the user exists (sesion)
+    const user = yield User_1.default.findById(id);
+    if (!user)
+        return res.status(404).json("User doesn't exist!");
+    // * Check if the expedient exists
+    const exp = yield Expedient_1.default.findOne({ expedient: idExp });
+    if (!exp)
+        return res.status(404).json("Expedient doesn't exist!");
+    //Set Expedient status to default
+    yield Expedient_1.default.updateOne({ expedient: idExp }, { $set: { requestAccess: "default" } }, { new: true });
+    return res.status(200).json("Expedient status changed to default");
+});
+exports.setStatusDefault = setStatusDefault;
 const getExpTest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const idExp = req.params.id;
     let foo = yield findOneExpedient(idExp);

@@ -4,11 +4,9 @@ import {
   uploadFile,
   getStatusRequest,
   setStatusRequest,
-<<<<<<< HEAD
-  getExpTest
-=======
   setStatusDefault,
->>>>>>> 667bdb3d65c971b7b3b6e0bbec4b4904107dc0c8
+  getExpTest
+
 } from "../controllers/expedients.controller";
 import { verifyToken } from "../middlewares/verifyToken";
 const routerExp: Router = Router();
