@@ -84,12 +84,16 @@ export const uploadFile = async (req: Request | any, res: Response) => {
  */
 export const getStatusRequest = async (req: Request | any, res: Response) => {
   const idExp: string = req.params.id;
-
   // * Check if the expedient exists
+<<<<<<< HEAD
   let exp: IExpedient | Array<IExpedient> = await findOneExpedient(idExp);
   exp=exp[0];
+=======
+  const exp: IExpedient | null = await Expedient.findOne({ expedient: idExp }).populate('patient');
+>>>>>>> 667bdb3d65c971b7b3b6e0bbec4b4904107dc0c8
   if (!exp) return res.status(404).json("Expedient doesn't exist!");
-
+  console.log(exp);
+  
   return res.status(200).json(exp.requestAccess);
 };
 
@@ -130,6 +134,7 @@ export const setStatusRequest = async (req: Request | any, res: Response) => {
   return await stateAccessStrategy.HandlerStrategy(req, res);
 };
 
+<<<<<<< HEAD
 
 
 export const getExpTest = async (req: Request | any, res: Response) => {
@@ -175,3 +180,26 @@ const findOneExpedient = (idExp:string):Aggregate<IExpedient[]> => {
 
 
 
+=======
+export const setStatusDefault= async (req: Request | any, res: Response) =>{
+  const id: string = req.userId;
+  const idExp: string = req.params.id;
+  
+  // * Check if the user exists (sesion)
+  const user: IUser | null = await User.findById(id);
+  if (!user) return res.status(404).json("User doesn't exist!");
+
+  // * Check if the expedient exists
+  const exp: IExpedient | null = await Expedient.findOne({ expedient: idExp });
+  if (!exp) return res.status(404).json("Expedient doesn't exist!");
+
+  //Set Expedient status to default
+  await Expedient.updateOne(
+    { expedient: idExp },
+    { $set: { requestAccess: "default" } },
+    { new: true }
+  );
+  
+  return res.status(200).json("Expedient status changed to default");
+}
+>>>>>>> 667bdb3d65c971b7b3b6e0bbec4b4904107dc0c8

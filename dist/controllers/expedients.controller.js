@@ -85,6 +85,7 @@ const getStatusRequest = (req, res) => __awaiter(void 0, void 0, void 0, functio
     exp = exp[0];
     if (!exp)
         return res.status(404).json("Expedient doesn't exist!");
+    console.log(exp);
     return res.status(200).json(exp.requestAccess);
 });
 exports.getStatusRequest = getStatusRequest;
