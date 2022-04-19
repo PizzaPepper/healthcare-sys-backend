@@ -27,19 +27,16 @@ const StrategyDoctor_1 = __importDefault(require("../logic/strategyAccess/Strate
  * @returns - The promise send to the client
  */
 const getExp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.userId;
     const idExp = req.params.id;
     // * Check if the user exists
-    const user = yield User_1.default.findById(id);
+    const user = yield User_1.default.findOne({ expedient: idExp });
     if (!user)
         return res.status(404).json("user doesn't exist!");
     // * Check if the user is a doctor or have the same expedient
     if (user.role == "patient" && user.expedient != idExp)
         return res.status(401).json("Unauthorized Expedient");
     // * Check if the expedient exists with the expedient id
-    // TODO: Improve this query
-    let exp = yield findOneExpedient(idExp);
-    exp = exp[0];
+    const exp = yield Expedient_1.default.findOne({ patient: user.id });
     if (!exp)
         return res.status(404).json("Expedient doesn't exist!");
     return res.status(200).json(exp);
@@ -54,6 +51,9 @@ exports.getExp = getExp;
 const uploadFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const idExp = req.params.id;
+    const user = yield User_1.default.findOne({ expedient: idExp });
+    if (!user)
+        return res.status(404).json("User doesn't exist!");
     // * Check if the header 'fileuploading' is present
     if (!((_a = req.files) === null || _a === void 0 ? void 0 : _a.fileuploading))
         return res.status(404).json("File doesn't exist!");
@@ -68,7 +68,7 @@ const uploadFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         public_id: result.public_id,
     };
     // * Check if the expedient exists
-    yield Expedient_1.default.updateOne({ expedient: idExp }, { $push: { files: newFile } }, { new: true });
+    yield Expedient_1.default.updateOne({ patient: user.id }, { $push: { files: newFile } }, { new: true });
     return res.status(201).json(newFile);
 });
 exports.uploadFile = uploadFile;
@@ -80,12 +80,12 @@ exports.uploadFile = uploadFile;
  */
 const getStatusRequest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const idExp = req.params.id;
-    // * Check if the expedient exists
-    let exp = yield findOneExpedient(idExp);
-    exp = exp[0];
+    const user = yield User_1.default.findOne({ expedient: idExp });
+    if (!user)
+        return res.status(404).json("User doesn't exist!");
+    const exp = yield Expedient_1.default.findOne({ patient: user.id });
     if (!exp)
         return res.status(404).json("Expedient doesn't exist!");
-    console.log(exp);
     return res.status(200).json(exp.requestAccess);
 });
 exports.getStatusRequest = getStatusRequest;
@@ -96,82 +96,52 @@ exports.getStatusRequest = getStatusRequest;
  * @returns - The promise send to the client
  */
 const setStatusRequest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.userId;
+    const idUserSession = req.userId;
     const idExp = req.params.id;
     // * Check if the user exists (sesion)
-    const user = yield User_1.default.findById(id);
-    if (!user)
+    const userSession = yield User_1.default.findById(idUserSession);
+    if (!userSession)
+        return res.status(404).json("User session doesn't exist!");
+    // * Check if the user exists (expedient)
+    const userExp = yield User_1.default.findOne({ expedient: idExp });
+    if (!userExp)
         return res.status(404).json("User doesn't exist!");
     // * Check if the expedient exists
-    let exp = yield findOneExpedient(idExp);
-    exp = exp[0];
+    const exp = yield Expedient_1.default.findOne({ patient: userExp.id });
     if (!exp)
         return res.status(404).json("Expedient doesn't exist!");
     const stateAccessStrategy = new StateAccessStrategy_1.default();
     stateAccessStrategy.setRequestAccess(exp.requestAccess);
-    stateAccessStrategy.setIdExp(idExp);
+    stateAccessStrategy.setIdUser(userExp.id);
     // * Check if the user is the patient
-    if (user.role === "patient") {
+    if (userSession.role === "patient") {
         stateAccessStrategy.setStrategyAccess(new StrategyPatient_1.default());
     }
     // * Check if the user is the doctor
-    if (user.role === "doctor") {
+    if (userSession.role === "doctor") {
         stateAccessStrategy.setStrategyAccess(new StrategyDoctor_1.default());
     }
     return yield stateAccessStrategy.HandlerStrategy(req, res);
 });
 exports.setStatusRequest = setStatusRequest;
 const setStatusDefault = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.userId;
     const idExp = req.params.id;
     // * Check if the user exists (sesion)
-    const user = yield User_1.default.findById(id);
+    const user = yield User_1.default.findOne({ expedient: idExp });
     if (!user)
         return res.status(404).json("User doesn't exist!");
     // * Check if the expedient exists
-    const exp = yield Expedient_1.default.findOne({ expedient: idExp });
+    const exp = yield Expedient_1.default.findOne({ patient: user.id });
     if (!exp)
         return res.status(404).json("Expedient doesn't exist!");
-    //Set Expedient status to default
-    yield Expedient_1.default.updateOne({ expedient: idExp }, { $set: { requestAccess: "default" } }, { new: true });
+    // * Set Expedient status to default
+    yield Expedient_1.default.updateOne({ patient: user.id }, { $set: { requestAccess: "default" } }, { new: true });
     return res.status(200).json("Expedient status changed to default");
 });
 exports.setStatusDefault = setStatusDefault;
 const getExpTest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const idExp = req.params.id;
-    let foo = yield findOneExpedient(idExp);
-    foo = foo[0];
-    return res.status(200).json(foo);
+    return res.status(200).json("funciona");
 });
 exports.getExpTest = getExpTest;
-// TODO: Improve this query
-const findOneExpedient = (idExp) => {
-    return Expedient_1.default.aggregate([
-        {
-            $lookup: {
-                from: "users",
-                localField: "patient",
-                foreignField: "_id",
-                as: "patient",
-            },
-        },
-        {
-            $match: {
-                "patient.expedient": idExp,
-            },
-        },
-        { $limit: 1 },
-        {
-            $project: {
-                id: 1,
-                patient: {
-                    $first: "$patient",
-                },
-                records: 1,
-                files: 1,
-                requestAccess: 1,
-            },
-        },
-    ]);
-};
 //# sourceMappingURL=expedients.controller.js.map

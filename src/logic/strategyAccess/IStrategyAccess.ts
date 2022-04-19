@@ -4,6 +4,6 @@ export default interface IStrategyAccess {
     req: Request,
     res: Response,
     requestAccess: string,
-    idExp: string
+    idUser: string
   ): Promise<any>;
 }

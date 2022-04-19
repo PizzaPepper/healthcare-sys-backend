@@ -10,10 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 class StateAccessStrategy {
-    constructor(strategy, requestAccess = '', idExp = '') {
+    constructor(strategy, requestAccess = "", idUser = "") {
         this.strategy = strategy;
         this.requestAccess = requestAccess;
-        this.idExp = idExp;
+        this.idUser = idUser;
     }
     setStrategyAccess(strategy) {
         this.strategy = strategy;
@@ -21,13 +21,13 @@ class StateAccessStrategy {
     setRequestAccess(requestAccess) {
         this.requestAccess = requestAccess;
     }
-    setIdExp(idExp) {
-        this.idExp = idExp;
+    setIdUser(idUser) {
+        this.idUser = idUser;
     }
     HandlerStrategy(req, res) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            return yield ((_a = this.strategy) === null || _a === void 0 ? void 0 : _a.handlerAccess(req, res, this.requestAccess, this.idExp));
+            return yield ((_a = this.strategy) === null || _a === void 0 ? void 0 : _a.handlerAccess(req, res, this.requestAccess, this.idUser));
         });
     }
 }

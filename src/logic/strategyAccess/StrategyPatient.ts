@@ -1,14 +1,16 @@
 import IStrategyAccess from "./IStrategyAccess";
 import { Request, Response } from "express";
 import Expedient from "../../models/Expedient";
+import User from "../../models/User";
 
 export default class StrategyPatient implements IStrategyAccess {
   async handlerAccess(
     req: Request,
     res: Response,
     requestAccess: string,
-    idExp: string
+    idUser: string
   ): Promise<any> {
+
     if (requestAccess === "accepted")
       return res.status(400).json("Status already accepted");
     if (requestAccess === "default")
@@ -17,7 +19,7 @@ export default class StrategyPatient implements IStrategyAccess {
     if (requestAccess === "pending") {
       // * Update the expedient to accepted if status is pending
       await Expedient.updateOne(
-        { expedient: idExp },
+        { patient: idUser},
         { $set: { requestAccess: "accepted" } },
         { new: true }
       );

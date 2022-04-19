@@ -14,18 +14,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Expedient_1 = __importDefault(require("../../models/Expedient"));
 class StrategyDoctor {
-    handlerAccess(req, res, requestAccess, idExp) {
+    handlerAccess(req, res, requestAccess, idUser) {
         return __awaiter(this, void 0, void 0, function* () {
             if (requestAccess === "pending")
                 return res.status(400).json("Status already pending");
             if (requestAccess === "default") {
                 // * Update the expedient to pending if status is default
-                yield Expedient_1.default.updateOne({ expedient: idExp }, { $set: { requestAccess: "pending" } }, { new: true });
+                yield Expedient_1.default.updateOne({ patient: idUser }, { $set: { requestAccess: "pending" } }, { new: true });
                 return res.status(200).json("Status pending");
             }
             if (requestAccess === "accepted") {
                 // * Update the expedient to default if status is accepted
-                yield Expedient_1.default.updateOne({ expedient: idExp }, { $set: { requestAccess: "default" } }, { new: true });
+                yield Expedient_1.default.updateOne({ patient: idUser }, { $set: { requestAccess: "default" } }, { new: true });
                 return res.status(200).json("Status default");
             }
             return res.status(200).json("Status not allowed");
