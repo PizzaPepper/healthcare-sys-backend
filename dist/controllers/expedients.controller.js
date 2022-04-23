@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getExpTest = exports.setStatusDefault = exports.setStatusRequest = exports.getStatusRequest = exports.uploadFile = exports.getExp = void 0;
+exports.setStatusDefault = exports.setStatusRequest = exports.getStatusRequest = exports.uploadFile = exports.getExp = void 0;
 const Expedient_1 = __importDefault(require("../models/Expedient"));
 const User_1 = __importDefault(require("../models/User"));
 const cloudinary_1 = require("../libs/cloudinary");
@@ -27,13 +27,18 @@ const StrategyDoctor_1 = __importDefault(require("../logic/strategyAccess/Strate
  * @returns - The promise send to the client
  */
 const getExp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const idSession = req.userId;
     const idExp = req.params.id;
     // * Check if the user exists
     const user = yield User_1.default.findOne({ expedient: idExp });
     if (!user)
-        return res.status(404).json("user doesn't exist!");
+        return res.status(404).json("User doesn't exist!");
+    // * Get info user session
+    const userSession = yield User_1.default.findById(idSession);
+    if (!userSession)
+        return res.status(404).json("User session doesn't exist!");
     // * Check if the user is a doctor or have the same expedient
-    if (user.role == "patient" && user.expedient != idExp)
+    if (user.role == "patient" && userSession.expedient != idExp)
         return res.status(401).json("Unauthorized Expedient");
     // * Check if the expedient exists with the expedient id
     const exp = yield Expedient_1.default.findOne({ patient: user.id });
@@ -124,6 +129,12 @@ const setStatusRequest = (req, res) => __awaiter(void 0, void 0, void 0, functio
     return yield stateAccessStrategy.HandlerStrategy(req, res);
 });
 exports.setStatusRequest = setStatusRequest;
+/**
+ * API endpoint to set the status access of an expedient
+ * @param req - The request object
+ * @param res - The response object
+ * @returns - The promise send to the client
+ */
 const setStatusDefault = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const idExp = req.params.id;
     // * Check if the user exists (sesion)
@@ -139,9 +150,4 @@ const setStatusDefault = (req, res) => __awaiter(void 0, void 0, void 0, functio
     return res.status(200).json("Expedient status changed to default");
 });
 exports.setStatusDefault = setStatusDefault;
-const getExpTest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const idExp = req.params.id;
-    return res.status(200).json("funciona");
-});
-exports.getExpTest = getExpTest;
 //# sourceMappingURL=expedients.controller.js.map

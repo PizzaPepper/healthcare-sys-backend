@@ -14,19 +14,25 @@ import StrategyDoctor from "../logic/strategyAccess/StrategyDoctor";
  * @param res - The response object
  * @returns - The promise send to the client
  */
-export const getExp = async (req: Request | any, res: Response) => {
+export const getExp = async (req: Request|any | any, res: Response) => {
+  const idSession: string = req.userId;
   const idExp: string = req.params.id;
 
   // * Check if the user exists
   const user: IUser | null = await User.findOne({ expedient: idExp });
-  if (!user) return res.status(404).json("user doesn't exist!");
+  if (!user) return res.status(404).json("User doesn't exist!");
 
+
+  // * Get info user session
+  const userSession: IUser | null = await User.findById(idSession);
+  if(!userSession) return res.status(404).json("User session doesn't exist!");
+
+  
   // * Check if the user is a doctor or have the same expedient
-  if (user.role == "patient" && user.expedient != idExp)
+  if (user.role == "patient" && userSession.expedient != idExp)
     return res.status(401).json("Unauthorized Expedient");
 
   // * Check if the expedient exists with the expedient id
-
   const exp:IExpedient | null = await Expedient.findOne({ patient: user.id });
   if (!exp) return res.status(404).json("Expedient doesn't exist!");
   return res.status(200).json(exp);

@@ -9,6 +9,5 @@ routerExp.get("/:id/status", verifyToken_1.verifyToken, expedients_controller_1.
 routerExp.put("/:id/status", verifyToken_1.verifyToken, expedients_controller_1.setStatusRequest);
 routerExp.put("/:id/statusDefault", verifyToken_1.verifyToken, expedients_controller_1.setStatusDefault);
 routerExp.post("/:id/upload", verifyToken_1.verifyToken, expedients_controller_1.uploadFile);
-routerExp.get("/:id/test", verifyToken_1.verifyToken, expedients_controller_1.getExpTest);
 exports.default = routerExp;
 //# sourceMappingURL=expedients.routes.js.map
