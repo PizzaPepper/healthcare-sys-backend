@@ -27,10 +27,11 @@ export const getExp = async (req: Request|any | any, res: Response) => {
   const userSession: IUser | null = await User.findById(idSession);
   if(!userSession) return res.status(404).json("User session doesn't exist!");
 
-  
-  // * Check if the user is a doctor or have the same expedient
-  if (user.role == "patient" && userSession.expedient != idExp)
+  // * Check if the user is a patient or have the same expedient
+  if(userSession.role==='patient'){
+    if(userSession.expedient != idExp)
     return res.status(401).json("Unauthorized Expedient");
+  }
 
   // * Check if the expedient exists with the expedient id
   const exp:IExpedient | null = await Expedient.findOne({ patient: user.id });

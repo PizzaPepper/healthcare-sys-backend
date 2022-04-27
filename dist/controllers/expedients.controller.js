@@ -37,9 +37,11 @@ const getExp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userSession = yield User_1.default.findById(idSession);
     if (!userSession)
         return res.status(404).json("User session doesn't exist!");
-    // * Check if the user is a doctor or have the same expedient
-    if (user.role == "patient" && userSession.expedient != idExp)
-        return res.status(401).json("Unauthorized Expedient");
+    // * Check if the user is a patient or have the same expedient
+    if (userSession.role === 'patient') {
+        if (userSession.expedient != idExp)
+            return res.status(401).json("Unauthorized Expedient");
+    }
     // * Check if the expedient exists with the expedient id
     const exp = yield Expedient_1.default.findOne({ patient: user.id });
     if (!exp)
