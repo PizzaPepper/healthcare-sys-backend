@@ -27,19 +27,25 @@ const StrategyDoctor_1 = __importDefault(require("../logic/strategyAccess/Strate
  * @returns - The promise send to the client
  */
 const getExp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const idSession = req.userId;
+    const idUserSession = req.userId;
+    const idExpSession = req.expSessionId;
     const idExp = req.params.id;
     // * Check if the user exists
     const user = yield User_1.default.findOne({ expedient: idExp });
     if (!user)
         return res.status(404).json("User doesn't exist!");
     // * Get info user session
-    const userSession = yield User_1.default.findById(idSession);
+    const userSession = yield User_1.default.findById(idUserSession);
     if (!userSession)
         return res.status(404).json("User session doesn't exist!");
-    // * Check if the user is a patient or have the same expedient
-    if (userSession.role === 'patient') {
+    // * Check if the user is a patient and has the same expedient
+    if (userSession.role === "patient") {
         if (userSession.expedient != idExp)
+            return res.status(401).json("Unauthorized Expedient");
+    }
+    // * Check if the user is a doctor and has the same expedient
+    if (userSession.role === "doctor") {
+        if (idExpSession != idExp)
             return res.status(401).json("Unauthorized Expedient");
     }
     // * Check if the expedient exists with the expedient id
@@ -114,7 +120,9 @@ const setStatusRequest = (req, res) => __awaiter(void 0, void 0, void 0, functio
     if (!userExp)
         return res.status(404).json("User doesn't exist!");
     // * Check if the expedient exists
-    const exp = yield Expedient_1.default.findOne({ patient: userExp.id });
+    const exp = yield Expedient_1.default.findOne({
+        patient: userExp.id,
+    });
     if (!exp)
         return res.status(404).json("Expedient doesn't exist!");
     const stateAccessStrategy = new StateAccessStrategy_1.default();

@@ -36,7 +36,9 @@ const app = (0, express_1.default)();
 //Middleware
 app.use((0, morgan_1.default)("dev"));
 app.use((0, express_1.json)());
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    exposedHeaders: ['X-Token']
+}));
 app.use((0, express_fileupload_1.default)({
     useTempFiles: true,
     tempFileDir: "/tmp/",

@@ -18,12 +18,14 @@ export const verifyTokenExp = async (
   const userSession: IUser | null = await User.findById(idSession);
   if (!userSession) return res.status(404).json("User session doesn't exist!");
 
-  if (userSession.role === "doctor") {
-    if (!req.headers.authorizationSession)
-      return res.status(401).json("Unthorize Session");
 
+  if (userSession.role === "doctor") {
+    if (!req.headers.authorizationsession)
+      return res.status(401).json("Unthorize Session");
+    res.removeHeader("authorizationsession");
+      
     try {
-      const token = req.headers.authorizationSession;
+      const token = req.headers.authorizationsession;
       const payload: any = jwt.verify(token, SECRET_TOKEN);
       req.expSessionId = payload._id;
     } catch (error: any) {
@@ -35,10 +37,10 @@ export const verifyTokenExp = async (
         return res.status(401).json("An error ocurred");
       }
     }
-    next();
+    return next();
   }
   if (userSession.role === "patient") {
-    next();
+    return next();
   }
  
   return res.status(401).json("Unthorize Request");

@@ -8,10 +8,15 @@ import cors from "cors";
 
 const app: Application = express();
 
+
 //Middleware
 app.use(morgan("dev"));
 app.use(json());
-app.use(cors());
+app.use(cors({
+  exposedHeaders: ['X-Token']
+}));
+
+
 app.use(
   fileUpload({
     useTempFiles: true,

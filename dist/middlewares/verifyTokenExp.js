@@ -28,10 +28,11 @@ const verifyTokenExp = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     if (!userSession)
         return res.status(404).json("User session doesn't exist!");
     if (userSession.role === "doctor") {
-        if (!req.headers.authorizationSession)
+        if (!req.headers.authorizationsession)
             return res.status(401).json("Unthorize Session");
+        res.removeHeader("authorizationsession");
         try {
-            const token = req.headers.authorizationSession;
+            const token = req.headers.authorizationsession;
             const payload = jsonwebtoken_1.default.verify(token, config_1.SECRET_TOKEN);
             req.expSessionId = payload._id;
         }
@@ -46,10 +47,10 @@ const verifyTokenExp = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                 return res.status(401).json("An error ocurred");
             }
         }
-        next();
+        return next();
     }
     if (userSession.role === "patient") {
-        next();
+        return next();
     }
     return res.status(401).json("Unthorize Request");
 });

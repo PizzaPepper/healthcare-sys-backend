@@ -13,6 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Expedient_1 = __importDefault(require("../../models/Expedient"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const config_1 = require("../../config");
+const User_1 = __importDefault(require("../../models/User"));
 class StrategyDoctor {
     handlerAccess(req, res, requestAccess, idUser) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -25,8 +28,17 @@ class StrategyDoctor {
             }
             if (requestAccess === "accepted") {
                 // * Update the expedient to default if status is accepted
-                yield Expedient_1.default.updateOne({ patient: idUser }, { $set: { requestAccess: "default" } }, { new: true });
-                return res.status(200).json("Status default");
+                yield Expedient_1.default.findOneAndUpdate({ patient: idUser }, { $set: { requestAccess: "default" } }, { new: true });
+                // * Get the user
+                const user = yield User_1.default.findById(idUser);
+                const tokenExp = jsonwebtoken_1.default.sign({ _id: user === null || user === void 0 ? void 0 : user.expedient }, config_1.SECRET_TOKEN, {
+                    expiresIn: 60 * 60, // 1 hour
+                });
+                console.log(res);
+                return res
+                    .status(200)
+                    .setHeader("X-Token", tokenExp)
+                    .json("Status default");
             }
             return res.status(200).json("Status not allowed");
         });

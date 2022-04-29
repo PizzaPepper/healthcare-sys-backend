@@ -22,7 +22,7 @@ export const signin = async (req: Request, res: Response) => {
 
   // * Add a token of 1 hour session & put the userId in the payload
   const token: string = jwt.sign({ _id: user._id }, SECRET_TOKEN, {
-    expiresIn: 60 * 60, // 1 hour
+    expiresIn: 60 * 60 * 2, // 1 hour
   });
 
   return res.status(200).json(token);
