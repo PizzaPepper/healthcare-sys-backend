@@ -24,8 +24,7 @@ app.use(
     tempFileDir: "/tmp/",
   })
 );
-
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, "/public")));
 
 //Routes
 app.use("/api/v1/users", routerUser);

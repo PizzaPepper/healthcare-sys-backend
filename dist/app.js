@@ -44,7 +44,7 @@ app.use((0, express_fileupload_1.default)({
     useTempFiles: true,
     tempFileDir: "/tmp/",
 }));
-app.use(express_1.default.static(path_1.default.join(__dirname, '../src/public')));
+app.use(express_1.default.static(path_1.default.join(__dirname, "/public")));
 //Routes
 app.use("/api/v1/users", users_routes_1.default);
 app.use("/api/v1/exp", expedients_routes_1.default);
