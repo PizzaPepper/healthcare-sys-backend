@@ -169,3 +169,31 @@ export const setStatusDefault = async (req: Request | any, res: Response) => {
 
   return res.status(200).json("Expedient status changed to default");
 };
+
+/**
+ * ! @Warning: This Endpoint only use for simulate to the Scan Finger, totally not recommended for production 
+ * API endpoint to set the status access of an expedient
+ * @param req - The request object
+ * @param res - The response object
+ * @returns - The promise send to the client
+ */
+export const setStatusAccepted = async (req: Request | any, res: Response) => {
+  const idExp: string = req.params.id;
+
+  // * Check if the user exists (sesion)
+  const user: IUser | null = await User.findOne({ expedient: idExp });
+  if (!user) return res.status(404).json("User doesn't exist!");
+
+  // * Check if the expedient exists
+  const exp: IExpedient | null = await Expedient.findOne({ patient: user.id });
+  if (!exp) return res.status(404).json("Expedient doesn't exist!");
+  // * Set Expedient status to default
+  await Expedient.updateOne(
+    { patient: user.id },
+    { $set: { requestAccess: "accepted" } },
+    { new: true }
+  );
+  
+
+  return res.status(200).json("Expedient status changed to accepted");
+};

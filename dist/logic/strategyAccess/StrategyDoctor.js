@@ -34,7 +34,6 @@ class StrategyDoctor {
                 const tokenExp = jsonwebtoken_1.default.sign({ _id: user === null || user === void 0 ? void 0 : user.expedient }, config_1.SECRET_TOKEN, {
                     expiresIn: 60 * 60, // 1 hour
                 });
-                console.log(res);
                 return res
                     .status(200)
                     .setHeader("X-Token", tokenExp)

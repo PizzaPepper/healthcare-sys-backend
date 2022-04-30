@@ -43,7 +43,6 @@ export default class StrategyDoctor implements IStrategyAccess {
           expiresIn: 60 * 60, // 1 hour
         }
       );
-        console.log(res);
       return res
         .status(200)
         .setHeader("X-Token", tokenExp)

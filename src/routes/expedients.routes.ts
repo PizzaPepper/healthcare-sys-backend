@@ -5,6 +5,7 @@ import {
   getStatusRequest,
   setStatusRequest,
   setStatusDefault,
+  setStatusAccepted,
 } from "../controllers/expedients.controller";
 import { verifyToken } from "../middlewares/verifyToken";
 import { verifyTokenExp } from "../middlewares/verifyTokenExp";
@@ -14,6 +15,7 @@ routerExp.get("/:id", verifyToken, verifyTokenExp, getExp);
 routerExp.get("/:id/status", verifyToken, getStatusRequest);
 routerExp.put("/:id/status", verifyToken, setStatusRequest);
 routerExp.put("/:id/statusDefault", verifyToken, setStatusDefault);
+routerExp.put("/:id/statusAccepted", verifyToken, setStatusAccepted);
 routerExp.post("/:id/upload", verifyToken, uploadFile);
 
 export default routerExp;

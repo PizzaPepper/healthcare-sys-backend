@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setStatusDefault = exports.setStatusRequest = exports.getStatusRequest = exports.uploadFile = exports.getExp = void 0;
+exports.setStatusAccepted = exports.setStatusDefault = exports.setStatusRequest = exports.getStatusRequest = exports.uploadFile = exports.getExp = void 0;
 const Expedient_1 = __importDefault(require("../models/Expedient"));
 const User_1 = __importDefault(require("../models/User"));
 const cloudinary_1 = require("../libs/cloudinary");
@@ -160,4 +160,26 @@ const setStatusDefault = (req, res) => __awaiter(void 0, void 0, void 0, functio
     return res.status(200).json("Expedient status changed to default");
 });
 exports.setStatusDefault = setStatusDefault;
+/**
+ * ! @Warning: This Endpoint only use for simulate to the Scan Finger, totally not recommended for production
+ * API endpoint to set the status access of an expedient
+ * @param req - The request object
+ * @param res - The response object
+ * @returns - The promise send to the client
+ */
+const setStatusAccepted = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const idExp = req.params.id;
+    // * Check if the user exists (sesion)
+    const user = yield User_1.default.findOne({ expedient: idExp });
+    if (!user)
+        return res.status(404).json("User doesn't exist!");
+    // * Check if the expedient exists
+    const exp = yield Expedient_1.default.findOne({ patient: user.id });
+    if (!exp)
+        return res.status(404).json("Expedient doesn't exist!");
+    // * Set Expedient status to default
+    yield Expedient_1.default.updateOne({ patient: user.id }, { $set: { requestAccess: "accepted" } }, { new: true });
+    return res.status(200).json("Expedient status changed to accepted");
+});
+exports.setStatusAccepted = setStatusAccepted;
 //# sourceMappingURL=expedients.controller.js.map
