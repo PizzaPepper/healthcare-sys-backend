@@ -2,6 +2,7 @@ import express, { Application, json } from "express";
 import fileUpload from "express-fileupload";
 import routerUser from "./routes/users.routes";
 import routerExp from "./routes/expedients.routes";
+import path from "path"
 
 import morgan from "morgan";
 import cors from "cors";
@@ -23,6 +24,8 @@ app.use(
     tempFileDir: "/tmp/",
   })
 );
+
+app.use(express.static(path.join(__dirname, '../src/public')));
 
 //Routes
 app.use("/api/v1/users", routerUser);
