@@ -25,7 +25,7 @@ app.use(
   })
 );
 
-app.use(express.static(path.join(__dirname, '../src/public')));
+app.use(express.static('public'));
 
 //Routes
 app.use("/api/v1/users", routerUser);
